@@ -1,0 +1,331 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname cs1101Day23A20before) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #t)))
+;#lang racket
+
+;Class 23 Objectives
+;At the end of today's class you should
+;
+;KNOW:
+
+;  •  The differences between set! and mutators (set-structure!)
+;  •  That a mutator goes into a memory location and changes its value
+;  •  That set! changes what named memory (i.e. a variable) refers to (it doesn't change the value of the original memory location)
+;  •  Local structure changes should use mutators--changes to the whole list should use set!
+;  •  To create data with references back and forth, we need to partially create the items, then hook them up with set-structure! 
+
+;BE ABLE TO:
+
+;  •  Choose set! or set-structure!, as appropriate, to solve a problem 
+
+
+;Sample Exam Question:
+;
+;An online bookstore uses the following data definition and variable to track customers' orders:
+;
+
+(define-struct order (name titles status))
+;; Order is a (make-order String ListOfString Symbol)
+;  INTERP: represents a order where
+;          name is the order name
+;          titles is the list of titles in the order
+;          status is either 'placed, 'paid, or 'shipped
+;;; orderlist:  ListOfOrder
+;;; stores the orders that customers have placed
+;
+;;; where status is one of 'placed, 'paid, or 'shipped
+;
+;Write a function change-status that consumes an order and a symbol and changes the order's status to the given symbol.
+;
+;;; change-status: Order Symbol -> void
+;;; changes status of given order to given symbol
+(define ORDERTEST (make-order "Hello" empty 'placed))
+(check-expect (begin (change-status ORDERTEST 'paid) ORDERTEST) (make-order "Hello" empty 'paid))
+(check-expect (begin (change-status ORDERTEST 'shipped) ORDERTEST) (make-order "Hello" empty 'shipped))
+
+(define (change-status a-order a-sym)
+  (set-order-status! a-order a-sym))
+;       
+
+
+;Recap:
+;
+;set!
+;void / (void)
+;error
+;side effects
+;begin
+;(no-args)
+;mutators!
+
+;Hardy?
+
+;make a list of accts and mutate one!
+
+
+;;Mutable Variables  
+
+(define-struct account (acct# balance))
+
+;;a ListOfAccount is one of:
+;;
+;;  - empty
+;;  - (cons Account ListOfAccount)
+
+;;CITIBANG is a list of accounts
+;;remembers information about each customer's account
+(define CITIBANG (list (make-account 111 10)
+                       (make-account 222 20)
+                       (make-account 333 30)))
+
+;;add-account
+;;takes a new acctnum and balance and extends list of accounts
+;;EFFECT: changes the number of accounts in CITIBANG  
+(define (add-account num# bal)
+  (set! CITIBANG (cons (make-account num# bal) CITIBANG)))
+
+
+
+(define (remove-account num#)
+  (set! CITIBANG (remove-from-list CITIBANG num#)))
+
+
+;oops
+
+;;remove-from-list: ListOfAccount Natural -> ListOfAccounts
+;;remove given account from list
+(define (remove-from-list acc-list num#)
+  (cond [(empty? acc-list) (error "no such account")]
+        [(cons? acc-list)
+         (if (= num# (account-acct# (first acc-list)))
+             (rest acc-list) ;return rest of list (this drops acct -- Why?)
+             (cons (first acc-list) (remove-from-list (rest acc-list) num#)))]))
+
+
+;;We can even do micro-surgery on structs, changing individual field values
+;;with new field-specific BANGS:
+(define myaccount (make-account 1729 10000000))
+
+(set-account-balance! myaccount 2000000)
+
+;;mutators
+
+(define acct1 (make-account 1 111))
+(define acct2 (make-account 2 222))
+(define acct3 (make-account 3 333))
+
+(define MYBANG (list acct1 acct2 acct3))
+
+;mutators don't show (void)
+
+;;deposit: Natural Natural -> void
+;;takes a new acctnum and balance and extends list of accounts
+;;EFFECT: adds to the balance of an account in CITIBANG 
+#;(define (deposit acct amt)
+    (set! CITIBANG (deposit-into-list acct amt CITIBANG)))
+
+(define (deposit-into-list acct amt aloa)
+  (cond [(empty? aloa) (error "no such account")]
+        [(cons?  aloa)
+         (if (= acct (account-acct# (first aloa)))
+             (cons (make-account
+                    acct
+                    (+ amt (account-balance (first aloa))))
+                   (rest aloa))
+             (cons (first aloa) (deposit-into-list acct amt (rest aloa))))]))
+
+(define (deposit acct amt aloa)
+  (cond [(empty? aloa) (error "no such account")]
+        [(cons?  aloa)
+         (if (= acct (account-acct# (first aloa)))
+             (set-account-balance! (first aloa) (+ amt
+                                                   (account-balance (first aloa))))
+             (deposit acct amt (rest aloa)))]))
+
+
+(define-struct customer (name phone acct))
+
+(define ABaccount  (make-account 1729 30))
+(define Acust (make-customer "Alice" 123.4567 ABaccount))
+(define Bcust (make-customer "Bob" 789.1234 ABaccount))
+
+
+
+;(define ABaccount (make-account 1729 100))
+;(define Acust (make-customer "Alice" 123.4567 ABaccount))
+;(define Bcust (make-customer "Bob" 789.1234 ABaccount))
+
+;(set! ABaccount (make-account 1729 9000))
+;set! creates new, not same
+
+;Use this:
+;(set-account-balance! (customer-acct Acust) 100)
+
+;remove-account w mutator?
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; two-way family trees (data with cycles)
+
+(define-struct person (name parent child-list))
+;; a Person is a (make-person String FamTree FamTree ListOfPerson)
+
+;; a FamTree is one of
+;;    false
+;;    Person
+
+;; try to define data where Alice is Bob's parent (and Bob is Alice's child)
+
+
+(define ALICE (make-person "Alice" false empty))
+
+(define BOB (make-person "Bob" false empty))
+
+(define EVE (make-person "Eve" ALICE empty))
+
+(set-person-parent! BOB ALICE)
+(set-person-child-list! ALICE (list BOB EVE))
+
+
+;; solution... "partially create" data first (set list of Brenda's children to empty)
+;; then use a mutator to change it later
+;(define ALICE (make-person "Alice" false empty))
+;(define BOB (make-person "Bob" ALICE empty))
+;(set-person-child-list! ALICE (list BOB))
+
+
+;; add-child-to-parent:  Person String -> void
+;; creates a person with the given name and the given person as their parent
+;; EFFECT:  changes the children of the given parent
+;(define (add-child-to-parent parent kid-name)
+;  (local [(define CHILD (make-person kid-name parent empty))]
+;  (set-person-kids! parent (cons CHILD
+;                                 (person-kids mother)))))
+
+
+;(define (format-test value)
+;  (format "the passed value is ~v and its square is ~s" value 8))
+
+;(define-struct person (name parent child-list))
+;; a Person is a (make-person String Person ListOfPerson)
+;;  interp:  represents a person along with his/her descendants
+;;    name                               String
+;;    parent                             Person
+;;    children is the person's children  ListOfPerson
+
+;; a ListOfPerson is one of
+;;    empty
+;;    (cons Person ListOfPerson)
+
+; 
+;                                  Susan
+;                                 /  |   \
+;                                /   |    \
+;                            Joe   Helen  Ricky                                        
+;                                   /  \
+;                                  /    \
+;                                Beth    Sam
+; 
+;(define-struct person (name parent child-list))
+;(define BETH  (make-person "Beth"  false empty))
+;(define SAM   (make-person "Sam"   false empty))
+;(define HELEN (make-person "Helen" false (list BETH SAM)))
+;(set-person-parent! BETH HELEN)
+;(set-person-parent! SAM  HELEN)
+;(define RICKY (make-person "Ricky" false empty))
+;(define JOE   (make-person "Joe"   false empty))
+;(define SUSAN (make-person "Susan" false (list JOE HELEN RICKY)))
+;(set-person-parent! HELEN SUSAN)
+;(set-person-parent! JOE   SUSAN)
+;(set-person-parent! RICKY SUSAN)
+;
+;
+;
+;
+;(define-struct married-person (name spouse))
+;(define person1 (make-married-person "someone" false))
+;(define person2 (make-married-person "another" person1))
+;(set-married-person-spouse! person1 person2)
+
+
+;Sample Exam Question 2:
+
+(define CITIBANK (list (make-account 111 10)
+                       (make-account 222 20)
+                       (make-account 333 30)
+                       (make-account 444 30)
+                       (make-account 555 10001)
+                       (make-account 555 10000)
+                       (make-account 555 20000)
+                       (make-account 555 100)))
+;
+;Consider our banking example, and the following signature and purpose:
+;
+;;; add-bonus-for-high-balance: -> void
+;;; The function adds $100 as a high-investor reward to any account
+;;; in Citibank with a balance exceeding $10,000
+;;; EFFECT:  may change the balance of some of the accounts in Citibank
+;
+(check-expect (begin (add-bonus-for-high-balance) CITIBANK)
+              (list (make-account 111 10)
+                    (make-account 222 20)
+                    (make-account 333 30)
+                    (make-account 444 30)
+                    (make-account 555 10101)
+                    (make-account 555 10000)
+                    (make-account 555 20100)
+                    (make-account 555 100)))
+(define (add-bonus-for-high-balance)
+  (local [
+          (define (high-bal? a-account)
+            (> (account-balance a-account) 10000))
+          
+          (define (add-bonus--account a-account)
+            (set-account-balance! a-account
+                                  (+ 100
+                                     (account-balance a-account)))) 
+            
+          (define (add-bonus-for-high-balance a-loa fn-call)
+            (cond [(empty? a-loa) (void)]
+                  [(cons? a-loa)
+                   (if (high-bal? (first a-loa))
+                       (add-bonus-for-high-balance (rest a-loa) (add-bonus--account (first a-loa)))
+                       (add-bonus-for-high-balance (rest a-loa) false))]))
+          ]
+    (add-bonus-for-high-balance CITIBANK false)))
+
+
+;;; sub-bonus-for-high-balance: -> void
+;;; The function subtracts $100 as a high-investor fee to any account
+;;; in Citibank with a balance exceeding $10,100
+;;; EFFECT:  may change the balance of some of the accounts in Citibank
+(check-expect (begin (sub-bonus-for-high-balance) CITIBANK)
+              (list (make-account 111 10)
+                    (make-account 222 20)
+                    (make-account 333 30)
+                    (make-account 444 30)
+                    (make-account 555 10001)
+                    (make-account 555 10000)
+                    (make-account 555 20000)
+                    (make-account 555 100)))
+(define (sub-bonus-for-high-balance)
+  (local [(define (high-bal? a-account)
+            (> (account-balance a-account) 10100))
+          
+          (define (sub-bonus--account a-account)
+            (set-account-balance! a-account
+                                  (- (account-balance a-account) 100
+                                     ))) 
+            
+          (define (sub-bonus-for-high-balance a-loa fn-call)
+            (cond [(empty? a-loa) (void)]
+                  [(cons? a-loa)
+                   (if (high-bal? (first a-loa))
+                       (sub-bonus-for-high-balance (rest a-loa) (sub-bonus--account (first a-loa)))
+                       (sub-bonus-for-high-balance (rest a-loa) false))]))
+          ]
+    (sub-bonus-for-high-balance CITIBANK false)))
+
+;Should you use a mutator to solve this problem, or set!? Could you use either? Defend your answer.
+; mutator as it changes only one type 
+;mutator as it is setting an account balance as it is a local structure change 

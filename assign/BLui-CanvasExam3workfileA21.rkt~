@@ -1,0 +1,436 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname Blui-CanvasExam3workfileA21) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #t)))
+; HtDP RECIPE:
+; 1. Signature, Purpose, Stub
+; 2. Examples (wrapped in check-expect)
+; 3. Inventory - Template & Constants
+; 4. Code Body
+; 5. Test and Debug
+ 
+  
+;;Template:
+;;
+;;(define (fn-name ...)
+;;   (...  ...)
+
+
+;; a ListOfString is one of
+;;     empty
+;;     (cons String ListOfString)
+
+
+; ;; los-fcn:  ListOfString ->
+; ;;
+; (define (los-fcn alos)
+;   (cond [(empty? alos)  (...)      ]
+;         [(cons? alos)   (... (first alos)
+;                              (los-fcn (rest alos)))]))
+
+
+;; a ListOfNumber is one of
+;;   empty
+;;   (cons Number ListOfNumber)
+
+; ;; lon-fcn:  ListOfNumber ->
+; ;;
+; (define (lon-fcn alon)
+;   (cond [(empty? alon)  (...)      ]
+;         [(cons? alon)   (... (first alon)
+;                              (lon-fcn (rest alon)))]))
+
+
+;1  Higher Order Functions
+
+
+;1a). Create \verb|(list -1 0 1 2 3)| with an expression involving at least two higher-order functions.  (You may define a helper function for use in the expression if you wish, but it is not necessary.)
+
+
+
+
+
+
+;1b). Briefly explain why the lengths of the lists returned by 
+;;(map abs (filter positive? (list -1 0 1 2 3)))
+
+;;and 
+
+;;(filter positive? (map abs (list -1 0 1 2 3)))
+
+;;are not the same length.  It is NOT enough merely to compute the lists or their lengths.
+
+
+
+
+
+
+;1c). The higher-order function foldr has the following signature: 
+;;foldr: (X  Y -> Y)  Y  ListOfX  ->  Y 
+
+;;Briefly explain why the isolated Y --- the function's middle parameter---must match the Y that is the return value.
+
+;;That is, why must the components starred (*) below match?
+;;foldr: (X  Y -> Y)  Y*  ListOfX  ->  Y*
+
+
+
+
+
+
+
+;1d).  Briefly explain why a function whose return value comes from a set! call cannot adequately be tested with check-expect.
+
+
+
+
+;1e).  The call (newline) takes no arguments and always returns (void).
+;;Briefly explain how a function call that takes no arguments can return a value other than (void) and a different value on every call.
+
+
+
+
+
+;;2.  Higher-Order Functions on Lists of Structs  (20 points)
+
+;;Nomanisan Island is a bird watcher's paradise.  The Island's forests echo with the songs and sounds of painted warblers and drowsy woodpeckers.  The shores of the Island teem with birds found nowhere else in the world such as the streaked gargull and the paisley-footed booby.  Birders flock from around the world, binoculars in hand, in hopes of spotting rarities only Nomanisan Island can offer them.
+
+
+;;Here are some data definitions:
+
+(define-struct sighting (spotter species flock# banded? eco-status))
+;;a Sighting is a (make-sighting String String Natural Boolean String)
+;;interp: represents a sighting where
+;;        spotter is the name of the person reporting the sighting
+;;        species is the bird's species
+;;        flock# is the number of such birds spotted together simultaneously
+;;        banded is #true if the spotter notes a biologist's band on any bird's leg
+;;        eco-status is "least concern" or "threatened" or "endangered"
+
+;;a ListOfSighting is one of:
+;;  empty
+;;  (cons Sighting ListOfSighting)
+
+
+
+;;Using filter and/or map, write a function satisfying the following signature/purpose:
+
+;;multi-endangered-spotters: Natural ListOfSighting -> ListOfString
+;;consumes number representing a flock size and a list of sightings
+;;returns a list of the names of spotters who report any endangered species
+;; in a group of the give size or more, that is, with flock# >= given number
+
+;;Include a signature and purpose for any helper function(s) you write.
+(check-expect (multi-endangered-spotters 0 empty) empty)
+(check-expect (multi-endangered-spotters 10 empty) empty)
+(check-expect (multi-endangered-spotters 1 (list SIGHTING2 SIGHTING3) )(list SIGHTING2 SIGHTING3))
+(check-expect (multi-endangered-spotters 2 (list SIGHTING2 SIGHTING3 SIGHTING4) )(list  SIGHTING3 SIGHTING4))
+(check-expect (multi-endangered-spotters 2 ALL-SIGHTINGS )(list  SIGHTING3 SIGHTING4 SIGHTING7))
+;(define (multi-endangered-spotters flock-size a-los) empty);stub
+#;(define (multi-endangered-spotters flock-size a-los)
+    (local [
+            (define (endangered-flock-greater a-sighting)
+              (and (>= (sighting-flock# a-sighting) flock-size )
+                   (string=?  "endangered" (sighting-eco-status a-sighting))
+                   ))
+            ]
+      (filter endangered-flock-greater a-los)
+      )
+    )
+
+
+
+
+(define SIGHTING1 (make-sighting "Aaron" "Silverfinch" 12 #false "least concern"))
+(define SIGHTING2 (make-sighting "Smith" "Streaked Gargull" 1 #true "endangered"))
+(define SIGHTING3 (make-sighting "Peter" "Hapless Hornbill" 2 #true "endangered"))
+(define SIGHTING4 (make-sighting "Patel" "Painted Warbler" 3 #false "endangered"))
+(define SIGHTING5 (make-sighting "McAnn" "P-F Booby" 1 #true "endangered"))
+(define SIGHTING6 (make-sighting "Xiang" "Tiger Turkey" 22 #true "least concern"))
+(define SIGHTING7 (make-sighting "Perez" "Painted Warbler" 2 #true "endangered"))
+(define SIGHTING8 (make-sighting "Tomas" "Drowsy Woodpecker" 5 #true "threatened"))
+(define SIGHTING9 (make-sighting "Wills" "Annapolis Andiole" 1 #true "endangered"))
+(define SIGHTINGX (make-sighting "Zenac" "Forgetful Hummingbird" 1 #false "threatened"))
+
+(define ALL-SIGHTINGS (list SIGHTING1 SIGHTING2 SIGHTING3 SIGHTING4 SIGHTING5
+                            SIGHTING6 SIGHTING7 SIGHTING8 SIGHTING9 SIGHTINGX))
+
+
+
+
+
+
+
+
+
+;;3.  Accumulator-Style Programming  (20 points)
+
+;;Nomanisan Island is a bird watcher's paradise.  The Island's forests echo with the songs and sounds of painted warblers and drowsy woodpeckers.  The shores of the Island teem with birds found nowhere else in the world such as the streaked gargull and the paisley-footed booby.  Birders flock from around the world, binoculars in hand, in hopes of spotting rarities only Nomanisan Island can offer them.
+
+
+;;Here are some data definitions:
+
+;(define-struct sighting (spotter species flock# banded? eco-status))
+;;a Sighting is a (make-sighting String String Natural Boolean String)
+;;interp: represents a sighting where
+;;        spotter is the name of the person reporting the sighting
+;;        species is the bird's species
+;;        flock# is the number of such birds spotted together simultaneously
+;;        banded is #true if the spotter notes a biologist's band on any bird's leg
+;;        eco-status is "least concern" or "threatened" or "endangered"
+
+;;a ListOfSighting is one of:
+;;  empty
+;;  (cons Sighting ListOfSighting)
+
+
+
+;;Using accumulator-style recursion, write a function satisfying the following signature/purpose:
+
+
+
+;;multi-endangered-spotters: Natural ListOfSighting -> ListOfString
+;;consumes number representing a flock size and a list of sightings
+;;returns a list of the names of spotters who report any endangered species
+;; in a group of the give size or more, that is, with flock# >= given number
+
+
+;;Include a signature and purpose for any helper function(s) you write.
+
+(define (multi-endangered-spotters flock-size a-los)
+  (local [
+          (define (multi-endangered-spotters acc a-los)
+            (cond [(empty? a-los) acc]
+                  [(cons? a-los) (if (endangered-flock-greater (first a-los))
+                                     (multi-endangered-spotters (append acc (list (first a-los))) (rest a-los))  
+                                     (multi-endangered-spotters acc (rest a-los))
+                                     )
+                                 ]))
+          (define (endangered-flock-greater a-sighting)
+            (and (>= (sighting-flock# a-sighting) flock-size )
+                 (string=?  "endangered" (sighting-eco-status a-sighting))
+                 ))
+          ]
+    (multi-endangered-spotters empty a-los)
+    ))
+
+
+
+
+
+;4a.  Mutable Variables  (15 points)
+
+
+;;The summit of Mount Donne on Nomanisan Island is such a popular spot that local authorities have had to implement a reservation system to control traffic flow.
+
+
+(define-struct reservation (name time-of-day duration vip?))
+;;a Reservation is a (make-reservation String Natural Natural Boolean)
+;;interp: represents an reservation for Mount Donne on Nomanisan Island where
+;;        name is the name person making the reservation
+;;        time-of-day is the hour of the reservation (0-23 military time)
+;;        duration is the length of the reservation in minutes
+;;        vip? is #true if the person making the reservation is a VIP
+;;             (Very Important Person)         
+
+;;a ListOfReservation is one of:
+;;  empty
+;;  (cons Reservation ListOfReservation)
+
+;;All daily reservations for Mount Donne are contained in the list MT.DONNE-REZ
+
+
+;;;Dignitaries from the Archipelago of Macronarnia are touring Nomanisan Island.  The Grand Poobah of the Island wants to make their visit as relaxed as possible.
+;To this end, the Grand Poobah has ordered that all VIP reservations for Mount Donne be extended by 60 minutes.
+
+;;Write a function that satisfies the following signature/purpose:
+
+;;vip+60:  ListOfReservation -> ListOfReservation
+;;consumes a list of reservations
+;;adds 60 minutes to the duration of all VIP reservations
+;;EFFECT: Possibly changes some reservations in the list
+
+;;Include a signature and purpose for any helper function(s) you write.
+(check-error (vip+60 empty) "The given ListOfReservation is empty.")
+(check-error  (vip+60 (list
+                      (make-reservation "Jackson" 9   30 #false)
+                      (make-reservation "Singh"   16  15 #false))) "No VIP reservations were found in the given list.")
+(check-expect (vip+60 (list
+                      (make-reservation "Jackson" 9   30 #false)
+                      (make-reservation "Meyers"  10  60 #true)
+                      (make-reservation "Singh"   16  15 #false)
+                      (make-reservation "Nguyen"  9   30 #true)))
+              (list
+                      (make-reservation "Jackson" 9   30 #false)
+                      (make-reservation "Meyers"  10  120 #true)
+                      (make-reservation "Singh"   16  15 #false)
+                      (make-reservation "Nguyen"  9   90 #true)))
+             
+
+(define (vip+60 a-lor-orig)
+  (local [
+          (define (vip+60 fn acc a-lor)
+            (cond [(empty? a-lor) (if (> acc 0 )
+                                      a-lor-orig
+                                      (error "No VIP reservations were found in the given list."))]
+                  [(cons? a-lor) (if (reservation-vip? (first a-lor))
+                                     (vip+60 (add-60-vip (first a-lor)) (+ 1 acc) (rest a-lor)) 
+                                     (vip+60 false acc (rest a-lor))
+                                     )
+                                 ]))
+          (define (add-60-vip a-reservation)
+            (set-reservation-duration! a-reservation (+ 60 (reservation-duration a-reservation))))
+          ]
+    (cond [(empty? a-lor-orig) (error "The given ListOfReservation is empty.")]
+          [else (vip+60 false 0 a-lor-orig)])
+    ))
+
+
+
+(define MT.DONNE-REZ (list
+                      (make-reservation "Jackson" 9   30 #false)
+                      (make-reservation "Dundee"  12  45 #true)
+                      (make-reservation "Meyers"  10  60 #true)
+                      (make-reservation "Singh"   16  15 #false)
+                      (make-reservation "Nguyen"  9   30 #true)))
+
+;For error:
+#;(define MT.DONNE-REZ (list
+                        (make-reservation "Jackson" 13  30 #false)
+                        (make-reservation "Dundee"  12  45 #true)
+                        (make-reservation "Meyers"  15  60 #true)
+                        (make-reservation "Singh"   16  15 #false)
+                        (make-reservation "Nguyen"  18  30 #true)))
+
+
+
+
+
+
+;4b.  Mutable Variables  (15 points)
+
+;;The summit of Mount Donne on Nomanisan Island is such a popular spot that local authorities have had to implement a reservation system to control traffic flow.
+
+
+;(define-struct reservation (name time-of-day duration vip?))
+;;a Reservation is a (make-reservation String Natural Natural Boolean)
+;;interp: represents an reservation for Mount Donne on Nomanisan Island where
+;;        name is the name person making the reservation
+;;        time-of-day is the hour of the reservation (0-23 military time)
+;;        duration is the length of the reservation in minutes
+;;        vip? is #true if the person making the reservation is a VIP
+;;             (Very Important Person)         
+
+;;a ListOfReservation is one of:
+;;  empty
+;;  (cons Reservation ListOfReservation)
+
+;;All daily reservations for Mount Donne are contained in the list MT.DONNE-REZ
+
+;Because of global climate change, the annual migration of the speckled sloth--expected next month--began at midnight.
+;The sloths are expected to complete their crossing of the Mount Donne summit road later this morning.
+;Local officials have decided to close the road until noon, and therefore all morning reservations must be cancelled.
+
+;;cancel-reservations: Natural -> (void)
+;;consumes an integer representing a time of day and removes all reservations 
+;;scheduled before the given time from MT.DONNE-REZ and produces (void)
+;;returns error "No Reservations Removed" if no reservations are cancelled
+;;EFFECT: MT.DONNE-REZ may be shortened 
+
+;;HINT:  Name your parameter 'a-time'.  'time' is a reserved word you cannot overload.
+
+(define (cancel-reservations a-time)
+  (set! MT.DONNE-REZ (cancel-reservations--lor MT.DONNE-REZ a-time)))
+
+
+;;cancel-reservations--lor: ListOfReservation Natural -> ListOfReservation
+;;consumes a ListOfReservation and an integer representing a time of day and removes all reservations 
+;;scheduled before the given time from the given ListOfReservation, returning all the ListOfReservation
+;;returns error "No Reservations Removed" if no reservations are cancelled
+(check-error (cancel-reservations--lor empty 0) "No Reservations Removed")
+(check-error (cancel-reservations--lor MT.DONNE-REZ 9) "No Reservations Removed")
+(check-expect (cancel-reservations--lor MT.DONNE-REZ 10)
+             (list
+              (make-reservation "Dundee" 12 45 true)
+              (make-reservation "Meyers" 10 60 true)
+              (make-reservation "Singh" 16 15 false)))
+
+
+(define (cancel-reservations--lor a-lor a-time)
+  (local [
+          (define (cancel-reservations--lor list-acc removed-acc a-lor)
+            (cond [(empty? a-lor) (if (> removed-acc 0 )
+                                      list-acc
+                                      (error "No Reservations Removed"))]
+                  [(cons? a-lor) (if (before-time? (first a-lor))
+                                     (cancel-reservations--lor list-acc (+ 1 removed-acc) (rest a-lor))   ;chuck
+                                     (cancel-reservations--lor (append list-acc (list (first a-lor))) removed-acc (rest a-lor)) ;keep 
+                                     )
+                                 ]))
+          (define (before-time? a-reservation)
+            (< (reservation-time-of-day a-reservation) a-time))
+          ]
+    (cancel-reservations--lor empty 0 a-lor)
+    ))
+
+
+;;Be sure to include a test sequence to demonstrate that your function operates properly.
+
+;;Include a signature and purpose for any helper function(s) you write.
+
+
+
+
+
+
+
+
+;5a Data With Cycles (10 points)
+
+;Here are some data definitions:
+
+(define-struct character (name stories buddy))
+;;A Character is a (make-character String ListOfString Character)
+;;interp: represents a (possibly fictional) character where
+;;        name is the character's name
+;;        stories is a list of books, movies, etc. the character appears in
+;;        buddy is the character's best friend
+
+;;a ListofString is one of:
+;;  empty
+;;  (cons String ListOfString)
+
+
+;Tweedledum and Tweedledee first appeared in John Byrom's ``Nursery Rhymes'' and then most famously in Lewis Carroll's Alice adventure ``Through the Looking-Glass''.
+
+
+;Write a sequence of expressions that correctly--and mutually--defines LUKE and LEIA as Humanoids under the data definition above.
+(define LUKE (make-character "Luke" (list "Star Wars") false))
+(define LEIA (make-character "Leia" (list "Star Wars") LUKE))
+(set-character-buddy! LUKE LEIA)
+
+;5b  Data with Cycles (5 Bonus Points) 
+
+;Here are some data definitions:
+
+;(define-struct character (name stories buddy))
+;;A Character is a (make-character String ListOfString Character)
+;;interp: represents a (possibly fictional) character where
+;;        name is the character's name
+;;        stories is a list of books, movies, etc. the character appears in
+;;        buddy is the character's best friend
+
+;;a ListofString is one of:
+;;  empty
+;;  (cons String ListOfString)
+
+;;SPOILER ALERT!  In Mel Brooks' 1987 space opera parody ``Spaceballs'', John Candy plays Barf, the co-pilot of mercenary hero Lone Starr's spaceship Eagle 5.
+
+;As a Mog, half-man/half-dog, Barf is his own best friend.
+
+
+;Write an expression or a sequence of expressions to correctly define BARF as a Character in terms of himself, or explain why such a definition is impossible.
+(define BARF (make-character "Barf" (list "Spaceballs") false))
+(set-character-buddy! BARF BARF)
+
+
+

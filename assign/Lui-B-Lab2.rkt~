@@ -1,0 +1,60 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname Lui-B-hw2) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;Brandon Lui blui
+
+;QUESTION 1 and 2
+
+(define-struct hurricane (name category max-sustained-winds velocity heading))
+; A hurricane can be constructed by using (make-hurricane String Natural Natural Natural String)
+; interp: represents a hurricane where
+; name is the hurricane's name
+; category is the hurricane's category from 1-5 inclusive, 5 is largest
+; max-sustained-winds is the hurricane's maximum sustained winds in miles per hour
+; velocity is the hurricane's velocity in miles per hour
+; heading is the hurricane's heading (ex. NNW)
+#; (define (hurricane-template a-hurricane ...) ;template
+     (... (hurricane-name a-hurricane) ...
+      ... (hurricane-category a-hurricane) ...
+      ... (hurricane-max-sustained-winds a-hurricane) ...
+      ... (hurricane-velocity a-hurricane) ...
+      ... (hurricane-heading a-hurricane) ...))
+(define HURRICANE-KAT (make-hurricane "Katrina" 5 175 200 "NNW"))
+
+(define-struct thunderstorm (inches-rainfall max-wind-gust velocity heading))
+; A thunderstorm can be constructed by using (make-thunderstorm Natural Natural Natural String)
+; interp: represents a hurricane where
+; inches-rainfall is the thunderstorm's maximum raindall in inches
+; max-wind-gust is the thunderstorm's maximum wind gust in miles per hour
+; velocity is the thunderstorm's velocity in miles per hour
+; heading is the thunderstorm's heading (ex. NNW)
+#; (define (tunderstorm-template a-thunderstorm ...) ;template
+     (... (thunderstorm-inches-rainfall a-thunderstorm) ...
+      ... (thunderstorm-max-wind-gust a-thunderstorm) ...
+      ... (thunderstorm-velocity a-thunderstorm) ...
+      ... (thunderstorm-heading a-thunderstorm) ...))
+(define THUNDER-B (make-thunderstorm 20 50 55 "W"))
+
+(define-struct fire (sq-miles days ppl-displaced))
+; A fire can be constructed by using (make-thunderstorm Natural Natural Natural)
+; interp: represents a fire where
+; sq-miles is the fire's coverage in square miles
+; days is the number of days the fire has been raging 
+; ppl-displaced is the number of people the fire has displaced
+
+#; (define (fire-template a-fire ...) ;template
+     (... (fire-days a-fire) ...
+      ... (fire-ppl-displaced a-fire) ...))
+(define FIRE-1 (make-fire 1000 14 10000))
+       
+;a Storm is one of 
+;- Hurricane
+;- Thunderstorm
+;- Fire
+;interp: Storm represents an itemization of data definitions of storms
+#;(define (storm-template a-storm) ;template
+  (cond [(hurricane? a-storm) ...]
+        [(thunderstorm? a-storm) ...]
+        [(fire? a-storm) ...]
+        [else ...]))
+;QUESTION 3

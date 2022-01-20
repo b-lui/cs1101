@@ -1,0 +1,41 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname |moon-weight class 8-27|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t write repeating-decimal #f #t none #f () #f)))
+; HtDP Procedure
+; Template:
+; (define (fn-name ...)
+; (... .... ))
+
+(define MOON-GRAVITY 0.1667)
+
+; weight-on-moon: Number -> Number
+; consumes the weight of an object ont he earth and produces its corresponding weight on the moon
+;(define (weight-on-moon earth-weight) 0) ; stub
+(check-expect (weight-on-moon 0) 0 )
+(check-expect (weight-on-moon 10) 1.667 )
+(check-expect (weight-on-moon 100) 16.67 )
+(define (weight-on-moon earth-weight)
+  (* earth-weight MOON-GRAVITY ))
+; moon-weight-with-backpack: Number Number -> Number
+; consumes the weight of a person and a backpack on earth; produces their combined wieght on the moon
+
+; stub (define (moon-weight-with-backpack earth-wt pack-wt) 0) 
+(define (moon-weight-with-backpack earth-wt pack-wt) (weight-on-moon (+ earth-wt pack-wt)))
+
+(check-expect (moon-weight-with-backpack 0 0) 0 )
+(check-expect (moon-weight-with-backpack 10 0) 1.667 )
+(check-expect (moon-weight-with-backpack 0 10) 1.667 )
+(check-expect (moon-weight-with-backpack 5 5) 1.667 )
+
+;;skipn
+
+(check-expect (skipn (build-list 10 identity) 2) (list 0 3 6 9))
+(define (skipn a-lox a-num)
+  (local [(define (skipn a-lox accumulator)
+            (cond [(empty? a-lox) empty]
+                  [(cons? a-lox) (if (= 0 accumulator )
+                                     (cons (first a-lox)
+                                           (skipn (rest a-lox) a-num)) 
+                                     (skipn (rest a-lox) (- accumulator 1)))]))]
+    (skipn a-lox 0)))
+                                

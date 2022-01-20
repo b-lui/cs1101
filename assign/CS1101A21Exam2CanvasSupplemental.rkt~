@@ -1,0 +1,245 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-abbr-reader.ss" "lang")((modname CS1101A21Exam2CanvasSupplemental) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;;EXAM 2  Supplemental Permitted Materials 
+  
+
+; HtDP RECIPE:
+; 1. Signature, Purpose, Stub
+; 2. Examples (wrapped in check-expect)
+; 3. Inventory - Template & Constants
+; 4. Code Body
+; 5. Test and Debug
+ 
+
+;;Template:
+;;
+;;(define (fn-name ...)
+;;   (...  ...)
+
+
+;; a ListOfString is one of
+;;     empty
+;;     (cons String ListOfString)
+
+
+; ;; los-fcn:  ListOfString ->
+; ;;
+; (define (los-fcn alos)
+;   (cond [(empty? alos)  (...)      ]
+;         [(cons? alos)   (... (first alos)
+;                              (los-fcn (rest alos)))]))
+
+
+;; a ListOfNumber is one of
+;;   empty
+;;   (cons Number ListOfNumber)
+
+; ;; lon-fcn:  ListOfNumber ->
+; ;;
+; (define (lon-fcn alon)
+;   (cond [(empty? alon)  (...)      ]
+;         [(cons? alon)   (... (first alon)
+;                              (lon-fcn (rest alon)))]))
+;
+
+;Question 1:
+
+(define-struct tour (rezname guests# guide language))
+;;a Tour is a (make-tour String Natural String String))
+;;rezname is the name of the visitor making the tour reservation
+;;guests# is the number of guests taking the tour 
+;;guide is the name of the tour guide assigned to the tour
+;;language is the language spoken by the guide on the tour
+
+;;A ListOfTours is one of:
+;;  - empty
+;;  (cons Tour ListOfTours)
+
+; ;; tour-fcn:  Tour ->
+; ;;
+; (define (tour-fcn a-tour)
+;   (...  (tour-rezname   a-tour)
+;         (tour-guests#   a-tour)
+;         (tour-guide     a-tour)
+;         (tour-language  a-tour))
+
+
+; ;; lot-fcn:  ListOfTour ->
+; ;;
+; (define (lot-fcn alot)
+;   (cond [(empty? alot)  (...) ]
+;         [(cons?  alot)  (...     (tour-fcn (first alot))
+;                                  (lot-fcn  (rest alot)))]))
+
+
+;Write a function to satisfy the following signature and purpose.  You must develop a helper function and use the helper in your solution. Provide a signature and purpose for your helper.
+
+
+
+;;any-esperanto?:  ListOfTours -> Boolean
+;;consumes a list of guided tours produces true if any 
+;;of them is led by a guide whose language is Esperanto 
+
+;;YOUR FUNCTION MUST CALL A HELPER YOU DEFINE
+
+;;BE SURE TO INCLUDE AT LEAST TWO TESTS FOR BOTH FUNCTIONS
+
+;Question 2:
+
+(define BARNYARD (cons "sheep" (cons "goat" empty)))
+(define FIRMAMENT (list "sun" "moon" "stars" ))
+(define MASCOT "Gompei")
+
+
+
+
+
+
+;Question 3:
+
+;;Build a couple of BSTs and answer some questions about them
+
+
+;Question 4:
+
+(define-struct taxi (medallion driver year left right))
+;;a Taxi is a (make-taxi Natural String Natural BST BST))
+;;medallion is the taxi's (unique) medallion [number]
+;;driver is the name of the taxi's driver
+;;year is the model year of the taxi
+;;left  is a BST
+;;right is a BST
+
+;;a BST is one of
+;;   - #false
+;;   - Taxi
+;;
+;;invariant: all medallions in the left BST of a taxi are
+;;smaller than the taxi's medallion, and all medallions in the right 
+;;BST of a taxi are larger than the taxi's medallion.   
+
+;;;template for functions on Taxi:
+;#;(define (fcn-for-Taxi   a-taxi)
+;  (... (taxi-medallion    a-taxi)
+;       (taxi-driver       a-taxi)
+;       (taxi-year         a-taxi)
+;       (taxi-left         a-taxi)
+;       (taxi-right        a-taxi)))
+;
+
+;;;(recursive) template for functions on BinaryTrees:
+;#;(define (fcn-for-Taxi a-taxi)
+;    (cond [(boolean? a-taxi) (... )];base case
+;          [(taxi?    a-taxi) (... (taxi-medallion    a-taxi)
+;                                  (taxi-driver       a-taxi)
+;                                  (taxi-year         a-taxi)
+;                                  (fcn-for-Taxi (taxi-left  a-taxi))
+;                                  (fcn-for-Taxi (taxi-right a-taxi)))]))
+
+
+;Write a function with the following signature and purpose.  Your code should take advantage of the fact that the tree is a Binary Search Tree, finding the appropriate place where the new taxi will be inserted as quickly as possible.
+
+
+;;update-model-year: BST Natural Natural -> Taxi
+;;consumes a binary search tree, medallion, and a year and produces 
+;;a binary search tree with the given medallion's model updated
+;;(You may assume the medallion exists in the binary search tree.) 
+
+(define ALLCABS (make-taxi 100 "Hildy" 1944
+                          (make-taxi 50 "Travis" 1976 false false)
+                          (make-taxi 150 "Korben" 2263 
+                                    (make-taxi 135 "Reverend Jim" 1978 false false)
+                                    (make-taxi 200 "Max" 2004 false false))))
+
+
+
+
+
+
+
+
+
+
+
+;Question 5:
+
+
+(define-struct folder (name files subfolders))
+;;A Folder is a (make-folder String Natural ListOfFolder)
+;;name is the name of the folder
+;;files is the number of ordinary files in the folder 
+;;subfolders is a list of folders contained in the folder
+
+;;A ListOfFolder is one of
+;;  - empty
+;;  - (cons Folder ListOfFolder)
+
+;Write a function (or functions) to satisfy the following signature/purpose:
+
+
+;;kount-files: Folder -> Natural
+;;consumes a folder and returns the total number of
+;;ordinary files contained in all the folders
+
+; ;; folder-fcn:  Folder ->
+; ;;
+; (define (folder-fcn a-folder)
+;     (...  (folder-name   a-folder)
+;           (folder-files  a-folder)
+;           (lof-fcn (folder-subfolders a-folder))))
+;   
+;   
+; ;; lof-fcn:  ListOfFolder ->
+; ;;
+; (define (lof-fcn alof)
+;     (cond [(empty? alof) (...)]
+;           [(cons? alof)  (...  (folder-fcn (first alof))
+;                                (lof-fcn (rest alof)))]))
+
+
+
+;                          All-Terms
+;                           /    \
+;                          /|    |\
+;                         / |    | \
+;                        /  |    |  \
+;                       /   |    |   \
+;                      /    |    |    \
+;                     /     |    |     \
+;                    A      B    C      D 
+;                    |          / \      \
+;                    |         /   \      \    
+;                   CS        CS    CS    CS
+;                  1101      2303  3133  2223                  
+;                   /|\
+;                  / | \
+;                O1 O2 O3
+
+;(define-struct folder (name files subfolders))
+
+(define O1  (make-folder "O1" 10 empty))
+(define O2  (make-folder "O2" 20 empty))
+(define O3  (make-folder "O3" 30 empty))
+(define CS1101 (make-folder "CS1101" 40 (list O1 O2 O3))) 
+(define CS2303 (make-folder "CS2303" 50 empty))
+(define CS3133 (make-folder "CS3133" 60 empty))
+(define CS2223 (make-folder "CS2223" 70 empty))
+(define A (make-folder "A" 80 (list CS1101)))
+(define B (make-folder "B" 90 empty))
+(define C (make-folder "C" 100 (list CS2303 CS3133)))
+(define D (make-folder "D" 110 (list CS2223)))
+(define ALL-TERMS (make-folder "Terms" 120 (list A B C D)))
+
+
+
+;ALL-TERMS is this whole folder system
+;Hint:
+
+(+ 10 20 30 40 50 60 70 80 90 100 110 120)
+
+
+
+
+
+;(* 10 (apply + (build-list 13 identity)))

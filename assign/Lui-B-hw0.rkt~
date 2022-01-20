@@ -1,0 +1,25 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname Lui-B-hw0) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+ ;; QUESTION 1(a.)
+(* (- (* 5 3) (- 8 (string-length (string-append "CS" "1101")))) (/ 64 16))
+;; (* (- 15 (- 8 (string-length (string-append "CS" "1101")))) (/ 64 16))
+;; (* (- 15 (- 8 (string-length "CS1101"))) (/ 64 16))
+;; (* (- 15 (- 8 6)) (/ 64 16))
+;; (* (- 15 2) (/ 64 16))
+;; (* 13 (/ 64 16))
+;; (* 13 4)
+;; 52
+
+ ;; QUESTION 1(b.)
+ (define (triple n) (* n 3))
+       (if (< (triple 2) (triple (/ 12 4))) (sqrt (+ 4 (* 15 4))) 107)
+       ;; (if (< 6 (triple (/ 12 4)))   (sqrt (+ 4 (* 15 4)))   107)
+       ;; (if (< 6 (triple 3))   (sqrt (+ 4 (* 15 4)))   107)
+       ;; (if (< 6 9)   (sqrt (+ 4 (* 15 4)))   107)
+       ;; (sqrt (+ 4 (* 15 4)))
+       ;; (sqrt (+ 4 60))
+       ;; (sqrt 64)
+       ;; 8
+
+ ;; QUESTION 2

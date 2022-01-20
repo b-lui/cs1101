@@ -1,0 +1,48 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname Exam3FunctionTemplates) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
+;template higher order
+#; (define (higher-order-tem a-lox ...)
+     (local [
+             (define (helper-function ...)
+               (...))
+             ]
+       (...higher-order-fn... helper-function a-lox)
+       )
+     )
+
+;template accumulator
+#;(define (acc-function-template a-lox ...)
+  (local [
+          (define (acc-function-template acc a-lox ...)
+            (cond [(empty? a-lob) acc]
+                  [(cons? a-lob) (... (helper-fcn (first a-lob))
+                                     (acc-function-template acc (rest a-lob))  ;change accumulator in first or second as necessary 
+                                     (acc-function-template acc (rest a-lob))
+                                     )
+                                 ]))
+          (define (helper-fcn x)
+            (... x))
+          ]
+    (acc-function-template ...base-case... a-lox ...)
+    ))
+
+
+;template set! with accumulator 
+#;(define (set!-fcn-template ...)
+  (set! ...VAR... (acc-function-template ...VAR... ...)))
+
+#;(define (acc-function-template a-lox ...)
+  (local [
+          (define (acc-function-template acc a-lox ...)
+            (cond [(empty? a-lob) acc]
+                  [(cons? a-lob) (... (helper-fcn (first a-lob))
+                                     (acc-function-template acc (rest a-lob))  ;change accumulator in first or second as necessary 
+                                     (acc-function-template acc (rest a-lob))
+                                     )
+                                 ]))
+          (define (helper-fcn x)
+            (... x))
+          ]
+    (acc-function-template ...base-case... a-lox ...)
+    ))

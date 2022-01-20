@@ -1,0 +1,14 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname Untitled) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+; Brandon Lui blui
+
+(define-struct film (title genre rating running-time opening-date receipts-collected))
+;A film can be constructed by using (make-film String String Number Natural String Natural)
+;interp: represents a film where
+;title is the film's title in English
+;genre is the film's genre category
+;rating is the film's star rating from 1 to 5
+;running-time is the film's running time in minutes
+;opening-date is the film's public release date
+;receipts-collected is the number of tickets sold for the film

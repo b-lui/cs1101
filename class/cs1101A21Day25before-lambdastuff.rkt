@@ -1,0 +1,198 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname cs1101A21Day25before-lambdastuff) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #t)))
+;#lang racket
+
+
+;Class 25 Objectives
+;
+;At the end of today's class you should
+;
+;KNOW:
+;
+;    We missed something yesterday (testing or format)
+;    There is more to Higher-Order Functions
+;    lambda is used to define anonymous functions
+;
+;BE ABLE TO:
+
+;    Develop a set of test cases to adequately test a function that uses set! 
+;    Display in formatted output
+;    Use 'apply' and 'foldr' / 'foldl'
+;    Define and use anonymous (lambda) functions
+
+
+;"Show all the accounts in CITIBANK"
+;CITIBANK
+;"Remove the account with account number 3"
+;(remove-account 3)
+;"Show that CITIBANK no longer contains account number 3, but still contains all the other accounts"
+;CITIBANK
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ticketnum:  Natural
+;; remembers the last ticket number that was handed out
+(define ticketnum 0)
+
+;; get-ticket:  -> String
+;; produces a string that displays the next available ticket number (cycling 1-3)
+;; EFFECT:  changes the value of ticketnum
+(define (get-ticket)
+  (local [(define CURRENT ticketnum)]
+  (begin
+    (if (= ticketnum 3)
+        (set! ticketnum 1)
+        (set! ticketnum (+ ticketnum 1)))
+   (format "the current ticket number is ~a, the next available ticket number is ~a" CURRENT ticketnum)
+   ;(display CURRENT)
+   )))
+
+
+;;Here the ~a stands for 'any' and will output any arg in human-readable format:
+
+(define TODAY 1008)
+
+;(format "This '~a' is a number. (Today's date.)" TODAY)
+;(format "This '~a' is a string." "word")
+;(format "This '~a' is a Boolean." true)
+;(format "This '~a' is a webpage." MyHOME)
+;(format "This '~~' is a tilde.")
+;
+;(format "But this '~b' is that number in binary." TODAY)
+;(format "And this '~o' is that number in octal." TODAY)
+;(format "And this '~x' is that number in hexadecimal." TODAY)
+
+
+
+;;STRING ESCAPES FOR " and \
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+;;lambda expression:
+
+;;(lambda (var-1 var-2 ... var-n) (expression))
+
+;; local
+
+(define TWENTY (map add1 (build-list 20 identity)))
+
+#;(define (double n)
+  (* n 2))
+#;(map double TWENTY)
+
+(map (lambda (x) (* 2 x)) TWENTY)
+
+
+;;filter  (HOF)
+
+
+#; (define (bigger-than-n n lon)
+  (local [(define (big-enough? num)
+            (> num n))]
+          (filter big-enough? lon)))
+
+(define (bigger-than-n n lon)
+          (filter (lambda (num) (> num n)) lon))
+
+
+
+
+
+
+;;apply: (X -> X) ListOfX -> X
+
+(define FOONUMS (list 9 2 3 4 -5 4 3 2 1))
+(define FOOSTRINGS (list "a" "bc" "def"))
+(define GROCERIES (list "milk" "tea" "cookies"))
+
+
+(apply + FOONUMS)
+(apply max FOONUMS)
+(apply string-append  FOOSTRINGS)
+
+
+
+;;foldr and foldl will perform generic recursion for us
+;;(They are abstractions of recursion.)
+
+;;foldr: (X Y -> Y) Y ListOfX -> Y
+
+;;(foldr (lambda (x y) (+ x y)) 0 (build-list 5 identity))
+;;(foldr (lambda (x y) (if (> x y) x y)) 0 (build-list 5 identity))
+
+;;(foldr (lambda (s1 s2) (if (> (string-length s1) (string-length s2)) s1 s2)) "" GROCERIES)
+
+;(foldr (lambda (str int) (+ int (string-length str))) 0 (list "a" "bc" "def"))
+;(foldr add-lengths 0 FOOSTRINGS)
+
+#;(define (add-lengths str int)
+   (+ int (string-length str)))
+
+
+
+;(foldr string-append "789X" (list "1" "23" "456"))
+;(foldl string-append "789X" (list "1" "23" "456"))
+
+;;foldr moves to the rIGHT
+;;foldl moves to the lEFT
+
+(foldr (lambda (x y) (if (> x y ) x y ))
+         0 FOONUMS)
+
+
+;;literal / generic assignment
+
+(define plus
+  (lambda (x y)
+    (+ x y)))
+  ;(* x y))
+
+
+
+;;generic call:
+
+;((lambda (x y) (+ x y)) 7 11)
+
+
+;;argument passing -- function are first-class objects in Racket
+
+(define (function proc arg1 arg2)
+  (proc arg1 arg2))
+
+;> (function blurb 2 3)
+;5
+;> (function (lambda (x y)
+;    (+ x y)) 10 34)
+;44
+;> 
+;
+
+
+
+;python:
+; list(filter(lambda x : sum(filter(lambda y: x % y == 0, range(1,x//2+1))) == x, range(1,100000))) which gives [6, 28, 496, 8128]
+
+(define (perfect? n)
+  (= n (apply + (proper-divisors n))))
+
+(define (proper-divisors n)
+  (if (< n 2)
+      empty
+      (Proper-Divisors n (ceiling (/ n 2)))))
+
+(define (Proper-Divisors n k)
+  (if (= 1 k)
+      (list 1)
+      (if (= 0 (modulo n k))
+          (cons k (Proper-Divisors n (- k 1)))
+          (Proper-Divisors n (- k 1)))))
+
+;(filter perfect? (map add1 (build-list 10000 identity)))
+;(filter perfect? (map (lambda (x) (* 2 x)) (map add1 (build-list 5000 identity))))
+
+

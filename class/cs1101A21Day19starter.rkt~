@@ -1,0 +1,262 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname cs1101A21Day19starter) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #t)))
+;#lang racket
+
+;Class 19 Objectives
+; 
+;At the end of today's class you should
+;KNOW: 
+;   •  That map can be used when you need to run some function on every element of a list 
+;   •  That map produces a list with the same number of elements as the original list 
+;   •  That map provides a compact way to write certain functions over lists 
+;   •  Which problems can be solved using map and filter, and which cannot 
+;   •  That 'local' is an expression that returns a value
+;   •  That 'local' can be used with higher-order functions
+;
+;BE ABLE TO: 
+;   •  Use map to write functions over lists.
+;   •  Use local to write expressions in fresh contexts.
+;   •  Use local to extend Higher-Order Functions to more than one parameter.
+;
+;
+;
+;Sample Exam Question: 
+;A database of college students staying in residence halls is made up of a list of structs with the following format: 
+;
+;;; Student is a (make-student String Symbol Number String)
+;(define-struct student(name gender age id))
+;The college has changed their student-id system, and now all ids must start with the characters "00". Using map, write a function update-ids that consumes a ListOfStudent and produces a ListOfStudent, where the id of each student in the list now has the prefix "00".
+;
+;(DrRacket has a built-in function called string-append that might be useful. string-append consumes two strings and produces the string obtained by appending the second string to the first.) 
+
+
+; HtDP RECIPE:
+; 1. Signature, Purpose, Stub
+; 2. Examples (wrapped in check-expect)
+; 3. Inventory - Template & Constants
+; 4. Code Body
+; 5. Test and Debug
+
+
+(define INTS (list 0 1 -1 2 -2 3 -3 4 -4 5 -5))
+(define STRINGS (list "a" "B" "cs1101" ""))
+;string-upper-case? 
+
+;Higher-Order Functions
+
+;; extract-positives:  ListOfNumber -> ListOfNumber
+;; produces a list of only the positive numbers
+(define (extract-positives alon)
+  (cond [(empty? alon) empty]
+        [(cons? alon) (if (positive? (first alon))
+                          (cons (first alon) (extract-positives (rest alon)))
+                          (extract-positives (rest alon)))]))
+
+
+;; short-strings:  Natural ListOfString -> ListOfString
+;; consumes a length and a list of strings and produces a list of those
+;; strings with fewer than the given number of chars
+(define (short-strings limit alos)
+  (cond [(empty? alos) empty]
+        [(cons? alos) (if (< (string-length (first alos)) limit)
+                          (cons (first alos) (short-strings limit (rest alos)))
+                          (short-strings limit (rest alos)))]))
+
+; ;; filter IS BUILT-IN TO RACKET.  YOU DON'T HAVE TO DEFINE IT
+; 
+; ;; filter:  (Alpha -> Boolean) ListOfAlpha -> ListOfAlpha
+; ;; consumes a predicate and a list of alphas and produces a list of only those alphas
+; ;; for which the given predicate function keep? is true
+; (define (filter keep? aloa)
+;   (cond [(empty? aloa) empty]
+;         [(cons? aloa) (if (keep? (first aloa))
+;                           (cons (first aloa) (filter keep? (rest aloa)))
+;                           (filter keep? (rest aloa)))]))
+; 
+
+;; HERE'S ANOTHER WAY TO WRITE extract-positives, USING filter
+
+; ;; extract-positives:  ListOfNumber -> ListOfNumber
+; ;; produces a list of only the positive numbers
+; (define (extract-positives alon)
+;   (filter positive? alon))
+
+
+;; filter:  (Alpha -> Boolean) ListOfAlpha -> ListOfAlpha
+;; consumes a predicate and a list of alphas and produces a list of only those alphas for which the given predicate function keep? is true
+
+;; map:  (Alpha -> Beta) ListOfAlpha -> ListOfBeta
+;; consumes a procedure (of alphas) and a list of alphas and produces a list of function values on those alphas (of length same as original list of alphas)
+
+;; build-list:  Natural (Natural -> Alpha) -> ListOfAlpha
+;; consumes a Natural and a procedure on naturals and produces a list of function values of length of the magnitude of the natural
+
+;; ormap:   (Alpha -> Boolean) ListOfAlpha -> Boolean
+;; consumes a predicate and a list of alphas and produces true iff the predicate returns true on ANY of the Alphas 
+
+;; andmap:  (Alpha -> Boolean) ListOfAlpha -> Boolean
+;; consumes a predicate and a list of alphas and produces true iff the predicate returns true on ALL of the Alphas
+
+;for build-list
+(define (string-out int)
+  (if (even? int)
+      "EVEN"
+      "oDd"))
+
+;;----------------------------------------------------------------------------
+;;----------------------------------------------------------------------------
+
+
+;local is an expression that returns a value:
+
+(define (double num)
+  (* 2 num))
+
+;Hamlet:
+;“O God, I could be bounded in a nut shell and count myself a king of infinite space.” 
+
+
+#;(local
+  [;definitions go here--just like a new definitions window
+   (define (double a-string)
+     (string-append a-string a-string))
+
+   (define INTS (list 11 13 17 19))
+  ]
+  ;a single expression follows the definition--its value gets returned
+  (double "CS1101"))
+
+;Classic (annoying) quiz example:
+
+(define TEN 10)
+(define HUNDRED 100)
+
+
+#;(local [(define HUNDRED 8)]
+        (+ TEN HUNDRED))
+
+#;(local [(define TEN 2)]
+        (+ TEN HUNDRED))
+
+#;(local [(define TEN 2)
+        (define HUNDRED 8)]
+        (+ TEN HUNDRED))
+
+(define-struct boat (name max-hp capacity))
+;;a Boat is a (make-boat String Natural Natural))
+;;name is the name of the boat
+;;max-hp is the top horsepower of the boat
+;;capacity is the number of guests that can sail on the boat 
+
+
+;Write a function to satisfy the following signature and purpose.  You must develop a helper function and use the helper in your solution. Provide a signature and purpose for your helper.
+
+;;big-boats:  ListOfBoat -> ListOfBoat
+;;consumes a list of boats and returns a list of boats with a capacity of at least 25
+
+(define (big-boats alob)
+   (cond [(empty? alob)  empty      ]
+         [(cons? alob)   (if (big-boat? (first alob))
+                             (cons (first alob) (big-boats (rest alob)))
+                             (big-boats (rest alob)))]))
+
+;Boolean for keep&chuck / filter
+(define (big-boat? a-boat)
+  (>= (boat-capacity a-boat) 25))
+
+#;(define (big-boats alob)
+  (filter big-boat? alob))
+
+;Our standard, more-general keep&chuck...can we apply filter ?
+;Recursive calls shorten the list of boats, but size is always passed unchanged
+;So size acts much like a constant as far as this function is concerned
+;We can wrap the unchanging parameter (pseudo-constant) in a 'local'
+(define (boats-of-size size alob)
+   (cond [(empty? alob)  empty      ]
+         [(cons? alob)   (if (boat-of-size? size (first alob))
+                             (cons (first alob) (boats-of-size size (rest alob)))
+                             (boats-of-size size (rest alob)))]))
+
+(define (boat-of-size? size a-boat)
+  (>= (boat-capacity a-boat) size))
+
+(check-expect (boats-of-size 0 LISTALLBOATS) LISTALLBOATS)
+(check-expect (boats-of-size 1000 LISTALLBOATS) (list CIRCLELINE))
+
+
+
+;This will throw an error:
+#;(define (boats-of-size size alob)
+  (filter boat-of-size? alob))
+
+;re-define (boats-of-size size alob)
+;return expression should still be: (filter boat-of-size? alob)
+;HINT: boat-of-size? works perfectly, so keep it
+#;(define 
+  (local
+    [(define
+       )]
+    
+  ) )
+
+
+
+;re-define (boats-of-size size alob)
+;return expression should still be: (filter boat-of-size? alob)
+;HINT: boat-of-size? works perfectly, so keep it
+#;(define (boats-of-size size alob)
+  (local
+    [(define (boat-of-size? a-boat)
+       (> (boat-capacity a-boat) size))]
+    
+  (filter boat-of-size? alob) ) )
+
+
+
+
+
+
+;(define-struct boat (name max-hp capacity))
+(define MAGGIE (make-boat "Margaret Todd" 10 300))
+(define CIRCLELINE (make-boat "Cirle Line" 800 2000))
+
+
+(define ROWBOAT (make-boat "Waterloo" 0 2));not beastly
+(define LINER   (make-boat "Titanic" 25 1000));not beastly (1000)
+(define CIGBOAT (make-boat "Cohiba-ette" 1001 24));not beastly (24)
+(define BEAST   (make-boat "The Beast" 1400 100));beastly
+(define BEAST0  (make-boat "Barely Beastly" 1001 25));beastly
+  
+
+(define LIST0 (list MAGGIE CIRCLELINE))
+(define LIST1 (list CIRCLELINE BEAST MAGGIE))
+(define LIST2 (list MAGGIE BEAST BEAST0 CIRCLELINE))
+(define LISTALLBOATS(list
+                     MAGGIE
+                     CIRCLELINE
+                     ROWBOAT
+                     LINER
+                     CIGBOAT
+                     BEAST
+                     BEAST0))
+ 
+
+#;(define (over-size-boats size alob)
+  (cond [(empty? alob) empty]
+        [(cons?  alob) (if (> (boat-capacity (first alob)) size)
+                           (cons (first alob) (over-size-boats size (rest alob)))
+                           (over-size-boats size (rest alob)))]))
+
+#;(define (list-big-boats alob size)
+  (local [(define (big-boats? a-boat)
+             (> (boat-capacity a-boat) size))]
+    (filter big-boats? alob)))
+
+;(list-big-boats LISTALLBOATS 25)
+
+#;(define (boats-of-size size alob)
+  (local
+    [(define (boat-of-size? a-boat)
+            (>= (boat-capacity a-boat) size))]   
+  (filter boat-of-size? alob)) )

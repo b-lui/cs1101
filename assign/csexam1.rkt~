@@ -1,0 +1,80 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname csexam1) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;QUESTION 3
+;;qualified?: String Natural Boolean -> Boolean
+;;determine whether an American citizen is  
+;;eligible to hold a federal office
+;;
+;;consumes a string representing the office sought: "House", "Senate", or "Prez"
+;;and a number representing the citizen's age (in years) 
+;;and a boolean which is true only for natural-born citizens
+;;
+;;Here's a function definition for qualified? :
+(check-expect (qualified? "House" 25 true)true) ;equal age natural
+(check-expect (qualified? "House" 24 true)false); below age natural
+(check-expect (qualified? "House" 26 true)true); above age nautral
+(check-expect (qualified? "House" 25 false)true); equal age not nat
+(check-expect (qualified? "House" 24 false)false); below age not nat
+(check-expect (qualified? "House" 26 false)true); above age not nat
+(check-expect (qualified? "Senate" 30 true)true);equal age natural
+(check-expect (qualified? "Senate" 29 true)false); below age natural
+(check-expect (qualified? "Senate" 31 true)true); above age nautral
+(check-expect (qualified? "Senate" 30 false)true); equal age not nat
+(check-expect (qualified? "Senate" 29 false)false); below age not nat
+(check-expect (qualified? "Senate" 31 false)true); above age not nat
+(check-expect (qualified? "Prez" 35 true)true); equal age nautral
+(check-expect (qualified? "Prez" 34 true)false); below age nautral
+(check-expect (qualified? "Prez" 36 true)true); above age nautral
+(check-expect (qualified? "Prez" 35 false)false); equal age not nautral
+(check-expect (qualified? "Prez" 34 false)false); below age not nautral
+(check-expect (qualified? "Prez" 36 false)false); above age not nautral
+
+(define (qualified? office age natural?)
+  (or (and (string=? "House"  office) (>= age 25))
+      (and (string=? "Senate" office) (>= age 30))
+      (and (string=? "Prez"   office) (>= age 35) natural?)))
+
+
+;QUESTION 4
+(define-struct scubashow (guests time))
+;;a Scubashow is a (make-scubashow Natural String)
+;;interp:  represents a scubashow where
+;;         guests is the number of paying customers on the ‘‘CrabClaw’’
+;;         time represents time of day: "morning" or "afternoon"
+(define-struct schooner (price passengers))
+;;a Schooner is a (make-schooner Natural Natural);;interp:  represents a schooner where
+;;         price is the dollar amount each passenger pays to sail the ‘‘Maggie Mae’’
+;;         passengers represents the number of passengers aboard
+(define-struct whalewatch (price tickets breach?))
+;;a Whalewatch is a (make-whalewatch Natural Natural Boolean)
+;;interp:  represents a whalewatch where
+;;         price is the cost (in dollars) for a visitor to set out on the ‘‘Orcanada’’
+;;         tickets is the number of tickets sold for a whalewatch
+;;         breach? is true if the patrons get to see at least one whale
+
+;4a
+; a Adventure is one of 
+;- Scubashow
+;- Schooner
+;- Whalewatch
+; interp: defines an itemization of Adventure as a Scubashow, Schooner, Whalewatch
+
+;4b
+;make-whalewatch: Natural Natural Boolean -> Whalewatch
+; consumes a price (Natural) in dollars, amount of tickets (Tickets) and if patrons get to see at least one whale (breach?) produces a Whalewatch
+
+;4c
+(define SCUBA-EX (make-scubashow 30 "morning"))
+
+;4d
+;function definition
+;
+;;captains-catch: Adventure -> Natural
+;;consumes an adventure on the waters around Nomanisan Island
+;;produces the total dollar amount customers paid for the recreation
+
+(check-expect (captains-catch (make-scubashow 30 "morning"))25)
+(check-expect (captains-catch (make-scubashow 30 "afternoon"))40)
+(check-expect (captains-catch (make-scubashow 19 "morning"))25)
+(check-expect (captains-catch (make-scubashow 19 "afternoon"))40)

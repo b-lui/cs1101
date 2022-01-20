@@ -1,0 +1,401 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname CS1101A20CanvasExam3SOLUTIONS) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #t)))
+; HtDP RECIPE:
+; 1. Signature, Purpose, Stub
+; 2. Examples (wrapped in check-expect)
+; 3. Inventory - Template & Constants
+; 4. Code Body
+; 5. Test and Debug
+ 
+  
+;;Template:
+;;
+;;(define (fn-name ...)
+;;   (...  ...)
+
+
+;; a ListOfString is one of
+;;     empty
+;;     (cons String ListOfString)
+
+
+; ;; los-fcn:  ListOfString ->
+; ;;
+; (define (los-fcn alos)
+;   (cond [(empty? alos)  (...)      ]
+;         [(cons? alos)   (... (first alos)
+;                              (los-fcn (rest alos)))]))
+
+
+;; a ListOfNumber is one of
+;;   empty
+;;   (cons Number ListOfNumber)
+
+; ;; lon-fcn:  ListOfNumber ->
+; ;;
+; (define (lon-fcn alon)
+;   (cond [(empty? alon)  (...)      ]
+;         [(cons? alon)   (... (first alon)
+;                              (lon-fcn (rest alon)))]))
+
+
+;1  Higher Order Functions
+
+
+;1a). Create (list 2 4 6 8 10) with an expression involving higher-order functions.
+
+
+(filter even? (map add1 (build-list 10 identity)))
+
+
+
+
+;1b). Under what circumstances will the lengths of (filter odd? ListOfNum) and (map sqr ListOfNum) be equal, where ListOfNum is the same list of numbers in each expression? ?
+
+;;filter can chuck nothing.  All the numbers in the list must be odd.
+
+
+
+
+;1c). Suppose (ormap positive? ListOfNum) returns false. What must (filter positive? ListOfNum) return, where ListOfNum is the same list of numbers in each expression?
+
+;;if ormap returns false, there are no positive numbers in the list.
+;;if there are no positive numbers in the list, filter will return EMPTY
+
+
+
+
+
+
+
+;1d).  The higher-order function foldr has the following signature: 
+;;foldr: (X  Y -> Y)  Y  ListOfX  ->  Y
+
+;Briefly explain what the (X  Y -> Y) part represents.
+
+;;It is a function that takes two parameters and returns a value of the type
+;;of the second parameter -- also, the return type of foldr
+
+
+
+
+;;2.  Higher-Order Functions on Lists of Structs  (20 points)
+
+;;Nomanisan Island is a bicyclist's dream.  The roads and trails are so popular with riders that numerous bike rental shops operate on the Island.
+
+
+;;Here are some data definitions:
+
+(define-struct bike (company style size renter))
+;;a Bike is a (make-bike String String Natural String)
+;;interp: represents a bicycle where
+;;        company is the name of the rental shop
+;;        style is the kind of bike, e.g. "road", "mountain", "tandem", etc.
+;;        size is the wheel diameter (in inches)
+;;        renter is the name of the person who last rented the bicycle
+
+;;a ListOfBike is one of:
+;;  empty
+;;  (cons Bike ListOfBike)
+
+
+
+;;Using filter and/or map, write a function satisfying the following signature/purpose:
+
+;;recent-renters: ListOfBike String Natural -> ListOfString
+;;consumes a list of bikes and a style and a wheel size
+;;returns a list of the most recent renters of bikes with that style and wheel size
+
+;;Include a signature and purpose for any helper function(s) you write.
+
+#;(define (recent-renters lob kind wheel)
+  (map bike-renter
+       (local [(define (good-bike? a-bike)
+                 (and (string=? (bike-style a-bike) kind)
+                      (= (bike-size a-bike) wheel)))]
+         (filter good-bike? lob))))
+
+(define BIKE1 (make-bike "NIBike"      "mountain" 27 "smith"))
+(define BIKE2 (make-bike "RideNI"      "road" 20 "miller"))
+(define BIKE3 (make-bike "RideNI"      "road" 27 "jones"))
+(define BIKE4 (make-bike "IslandPedal" "tandem" 27 "patel"))
+(define BIKE5 (make-bike "IslandPedal" "mountain" 20 "wang"))
+(define BIKE6 (make-bike "BobbieBikes" "fattie" 27 "nguyen"))
+(define BIKE7 (make-bike "NIBike"      "mountain" 27 "o'brien"))
+(define BIKE8 (make-bike "NIBike"      "mountain" 27 "kennedy"))
+
+(define ALL-BIKES (list BIKE1 BIKE2 BIKE3 BIKE4 BIKE5 BIKE6 BIKE7 BIKE8))
+
+
+
+
+;;3.  Accumulator-Style Programming  (20 points)
+
+;;Nomanisan Island is a bicyclist's dream.  The roads and trails are so popular with riders that numerous bike rental shops operate on the Island.
+
+
+;;Here are some data definitions:
+
+;(define-struct bike (company style size renter))   SAME AS ABOVE
+;;a Bike is a (make-bike String String Natural String)
+;;interp: represents a bicycle where
+;;        company is the name of the rental shop
+;;        style is the kind of bike, e.g. "road", "mountain", "tandem", etc.
+;;        size is the wheel diameter (in inches)
+;;        renter is the name of the person who last rented the bicycle
+
+;;a ListOfBike is one of:
+;;  empty
+;;  (cons Bike ListOfBike)
+
+
+
+;;Using accumulator-style recursion, write a function satisfying the following signature/purpose:
+
+
+
+;;recent-renters: ListOfBike String Natural -> ListOfString
+;;consumes a list of bikes and a style and a wheel size
+;;returns a list of the most recent renters of bikes with that style and wheel size
+
+;;Include a signature and purpose for any helper function(s) you write.
+
+(define (recent-renters lob kind wheel)
+  (recent-renters-acc lob kind wheel empty))
+
+(define (recent-renters-acc lob kind wheel current-list)
+  (cond [(empty? lob) current-list]
+        [(cons?  lob) (if (good-bike? (first lob) kind wheel)
+                          (recent-renters-acc (rest lob) kind wheel
+                                (cons (bike-renter (first lob)) current-list))
+                          (recent-renters-acc (rest lob) kind wheel current-list))]))
+                                
+(define (good-bike? a-bike kind wheel)
+  (and (string=? (bike-style a-bike) kind)
+                      (= (bike-size a-bike) wheel)))
+
+(recent-renters ALL-BIKES "mountain" 27)
+
+
+
+
+
+
+
+
+
+
+;4a.  Mutable Variables  (15 points)
+
+
+;;Tourism on Nomanisan Island is a booming industry.  With many flights arriving and departing John Donne Continental Airport, the air travel industry has a large impact on the vibrant local economy.
+
+
+(define-struct flight (airline plane seats price))
+;;a Flight is a (make-flight String String Natural Natural)
+;;interp: represents an airline flight to Nomanisan Island where
+;;        airline is the name of the airline
+;;        plane is the kind of airplane flown
+;;        seats is the number of open seats
+;;        price is the cost of a ticket in dollars
+
+;;a ListOfFlight is one of:
+;;  empty
+;;  (cons Flight ListOfFlight)
+
+;;All daily flights to Nomanisan Island are contained in the list NIFLIGHTS
+
+#;(define NIFLIGHTS (list (make-flight "NIllionAire" "Airbus" 20 100)
+                        (make-flight "JPJetways" "Sopwith Camel" 20 250)
+                        (make-flight "IslandAir" "Piper" 3 75)
+                        (make-flight "IslandAir" "Piper" 5 200)
+                        (make-flight "NIllionAire" "Cessna" 0 200)))
+
+;For error:
+(define NIFLIGHTS (list (make-flight "NIllionAire" "Airbus" 10 100)
+                        (make-flight "JPJetways" "Sopwith Camel" 10 250)
+                        (make-flight "IslandAir" "Piper" 30 75)
+                        (make-flight "IslandAir" "Piper" 50 200)
+                        (make-flight "NIllionAire" "Cessna" 10 200)))
+
+
+
+;;;The weather around Nomanisan island can be a bit fickle.  A few times each year, when the So'westers blow, certain flights must be grounded based on the planes involved .
+
+;;Using set! write a function that satisfies the following signature/purpose:
+
+;;ground-plane:  String -> ListOfFlight
+;;consumes a plane (in string form)
+;;deletes all flights of the specified plane from NIFLIGHTS
+;;EFFECT: Possibly removes some flights from NIFLIGHTS
+
+;;Include a signature and purpose for any helper function(s) you write.
+
+
+(define (ground-plane a-plane)
+  (set! NIFLIGHTS (remove-flight a-plane NIFLIGHTS)))
+
+(define (remove-flight a-plane lof)
+  (cond [(empty? lof) empty]
+        [(cons?  lof) (if (string=? a-plane (flight-plane (first lof)))
+                          (remove-flight a-plane (rest lof))
+                          (cons (first lof) (remove-flight a-plane (rest lof))))]))
+
+
+
+
+
+
+
+
+
+
+;4b.  Mutable Variables  (15 points)
+
+;;Tourism on Nomanisan Island is a booming industry.  With many flights arriving and departing John Donne Continental Airport, the air travel industry has a large impact on the vibrant local economy.
+
+
+;(define-struct flight (airline plane seats price))  SAME AS ABOVE
+;;a Flight is a (make-flight String String Natural Natural)
+;;interp: represents an airline flight to Nomanisan Island where
+;;        airline is the name of the airline
+;;        plane is the kind of airplane flown
+;;        seats is the number of open seats
+;;        price is the cost of a ticket in dollars
+
+;;a ListOfFlight is one of:
+;;  empty
+;;  (cons Flight ListOfFlight)
+
+;;All daily flights to Nomanisan Island are contained in the list NIFLIGHTS
+
+
+
+
+
+;Because Nomanisan Island is such a popular destination for daytrippers, the local airlines routinely double their prices on nearly-full flights the night before departure.
+
+
+;;Write a function that satisfies the following signature/purpose:
+
+
+;;midnight-run: -> ListOfFlight
+;;doubles all ticket prices on flights with fewer than 10 open seats 
+;;returns error "All Flights Wide Open" if no flight has fewer than 10 open seats
+;;EFFECT: The prices of some flights in NIFLIGHTS may be raised
+
+;;Include a signature and purpose for any helper function(s) you write.
+
+
+(define (midnight-run)
+  (if (no-doubles? NIFLIGHTS)
+      (error "All Flights Wide Open")
+      (double NIFLIGHTS)))
+
+(define (no-doubles? lof)
+  (if (empty? lof)
+      #true
+      (if (< (flight-seats (first lof)) 10)
+          #false
+          (no-doubles? (rest lof)))))
+
+(define (double lof)
+  (if (empty? lof)
+      NIFLIGHTS
+      (begin 
+      (if (< (flight-seats (first lof)) 10)
+          (set-flight-price! (first lof) (* 2 (flight-price (first lof))))
+          (set-flight-price! (first lof) (flight-price (first lof))))
+      (double (rest lof)))))
+          
+
+
+
+
+
+
+
+;5a Data With Cycles (10 points)
+
+;Here are some data definitions:
+
+(define-struct humanoid (name galaxy siblings))
+;;A Humanoid is a (make-humanoid String String ListofHumanoid
+;;interp: represents a humanoid/person where
+;;        name is the humanoid's name
+;;        galaxy is the humanoid's galaxy of residence
+;;        siblings is a list of the humanoid's siblings
+
+;;a ListofHumanoid is one of:
+;;  empty
+;;  (cons Humanoid ListOfHumanoid)
+
+
+;SPOILER ALERT!  A long time ago, in the galaxy Farfaraway, there lived a farmer by the name of Luke Skywalker and a princess named Leia Organa.  In due course, after many swashbuckling adventures and feats of derring-do, they came to understand that they were actually twins.
+
+
+;Write a sequence of expressions that correctly--and mutually--defines LUKE and LEIA as Humanoids under the data definition above.
+
+
+;(define-struct humanoid (name galaxy siblings))
+;;A Humanoid is a (make-humanoid String String ListofHumanoid
+
+;Pretty
+(define LUKE (make-humanoid "Luke" "Farfaraway" empty))
+(define LEIA (make-humanoid "Leia" "Farfaraway" empty))
+(set-humanoid-siblings! LUKE (list LEIA))
+(set-humanoid-siblings! LEIA (list LUKE))
+
+;Optimal
+;(define LUKE (make-humanoid "Luke" "Farfaraway" empty))
+;(define LEIA (make-humanoid "Leia" "Farfaraway" (list LUKE)))
+;(set-humanoid-siblings! LUKE (list LEIA))
+
+
+;;Far and away the most common error was not putting LUKE/LEIA into
+;;sibling lists.  Without that, it's the same as the Sample Exam problem
+;;with spouses
+
+;5b  Data with Cycles (5 Bonus Points) 
+
+;Here are some data definitions:
+
+(define-struct personage (name birthday mother father))
+;;A Personage is a (make-personage String String Ancestor Ancestor)
+;;interp: represents a person where
+;;        name is the person's name
+;;        birthday is the person's date of birth
+;;        mother is the person's mother, possibly "unknown"
+;;        father is the person's father, possibly "unknown"
+
+;;an Ancestor is one of:
+;;  "unknown"
+;;  Personage
+
+;;SPOILER ALERT!^n  In Robert Heinlein's celebrated 1960 short story
+;;' "---All You Zombies---" ', the narrator--Jane, born on September 20, 1945--is incrementally revealed to be both his (?!) own mother and her (!?) own father.
+
+
+
+;;Write a sequence of expressions that correctly defines JANE as a Personage in terms of herself/himself, reflecting his/her unique parentage, or explain why such a definition is impossible.
+
+
+;(define-struct personage (name birthday mother father))
+;;A Personage is a (make-personage String String Ancestor Ancestor)
+(define JANE (make-personage "Jane" "9/20/1945" "unknown" "unknown"))
+(set-personage-mother! JANE JANE)
+(set-personage-father! JANE JANE)
+
+
+
+
+;;Does not work.  Re-creates J and never sets a self-reference:
+(define J (make-personage "Jane" "9/20/1945" "unknown" "unknown"))
+(set! J (make-personage "Jane" "9/20/1945" J J))
+
+
+
+
+;set! re-creates and doesn't set self-reference -2
+

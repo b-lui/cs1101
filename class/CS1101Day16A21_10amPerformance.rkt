@@ -1,0 +1,210 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-abbr-reader.ss" "lang")((modname CS1101Day16A21_10amPerformance) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;#lang racket
+
+;Class 16 Objectives
+; 
+;At the end of today's class you should
+;KNOW: 
+;	• Why the backtracking search function requires two possible return types.
+;       
+;BE ABLE TO: 
+;	• Write a search function for a hierarchy. 
+;       • Define local variables, if we have time.
+;     
+;
+;Sample Exam Question: 
+;In class today, we will write the function eye-color-name that produces either a Person or the Boolean value false. Explain why two possible return types are required, even if we assume that the item being searched for is guaranteed to be in the hierarchy. 
+
+
+(define-struct person (name year eye children))
+;; a Person is a (make-person String Natural String ListOfPerson)
+;;  interp:  represents a person along with his/her descendants
+;;    name
+;;    year
+;;    eye
+;;    children is the person's children
+
+;; a ListOfPerson is one of
+;;    empty
+;;    (cons Person ListOfPerson)
+
+
+; 
+;                                  Susan
+;                                 /  |   \
+;                                /   |    \
+;                            Joe   Helen  Ricky                                        
+;                                   /  \
+;                                  /    \
+;                                Beth    Sam
+
+
+
+(define SUSANTREE
+  (make-person "Susan" 1920 "blue"
+               (list (make-person "Joe" 1938 "green" empty)
+                     (make-person "Helen" 1940 "hazel"
+                                  (list (make-person "Beth" 1965 "green" empty)
+                                        (make-person "Sam" 1969 "brown" empty)))
+                     (make-person "Ricky" 1942 "blue" empty))))
+
+
+; ;; person-fcn:  Person ->
+; ;;
+; (define (person-fcn a-person)
+;     (...  (person-name a-person)
+;           (person-year a-person)
+;           (person-eye a-person)
+;           (lop-fcn (person-children a-person))))
+;   
+;   
+; ;; lop-fcn:  ListOfPerson ->
+; ;;
+; (define (lop-fcn alop)
+;     (cond [(empty? alop) (...)]
+;           [(cons? alop)  (...  (person-fcn (first alop))
+;                                (lop-fcn (rest alop)))]))
+;
+
+
+;WARM-UP
+;
+;;Write a mutually recursive pair of functions that determine whether there is a specific eye color in an arbitrary-arity tree
+
+;eye-color?: String Person -> Boolean
+;consumes eye color and person and return true if some descendant has that eye color
+(define (eye-color? color a-person) 
+     (if  (string=? color (person-eye a-person))
+          #true
+          (eye-color-list? color (person-children a-person))))
+
+
+;eye-color-list?: String LisOfPerson -> Boolean
+;consumes eye color and list of people; returns true if a descendant has eye color
+(define (eye-color-list? color alop) 
+     (cond [(empty? alop) #false]
+           [(cons? alop)  (or  (eye-color? color (first alop))
+                               (eye-color-list? color (rest alop)))]))
+
+
+(check-expect (eye-color? "blue" SUSANTREE) true)
+(check-expect (eye-color? "green" SUSANTREE) true)
+(check-expect (eye-color? "brown" SUSANTREE) true)
+(check-expect (eye-color? "pink" SUSANTREE) false)
+
+;(check-expect (eye-color-list? "blue" (list SUSANTREE)) true)
+;(check-expect (eye-color-list? "green" (list SUSANTREE)) true)
+;(check-expect (eye-color-list? "brown" (list SUSANTREE)) true)
+;(check-expect (eye-color-list? "pink" (list SUSANTREE)) false)
+;(check-expect (eye-color-list? "gray" (list (make-person "Mike" 1 "brown" empty)
+;                                             (make-person "Nike" 0 "gray" empty))
+;                               ) true)
+;(check-expect (eye-color-list? "pink" (list (make-person "Mike" 1 "brown" empty)
+;                                             (make-person "Nike" 0 "gray" empty))
+;                               ) false)
+
+
+
+;SOLUTIONS to Warm-Up
+;(define (eye-color? color a-person)
+;  (if  (string=? color (person-eye a-person))
+;       true
+;       (eye-color-list? color (person-children a-person))))
+;
+;(define (eye-color-list? color alop)
+;   (cond [(empty? alop) false]
+;         [(cons? alop)  (or  (eye-color? color (first alop))
+;                             (eye-color-list? color (rest alop)))]))
+
+
+;;COPY WORK FROM ABOVE INCLUDING CHECK-EXPECTS
+;;Rename functions from Booleans to String (adding -name to them)
+
+
+
+
+
+
+
+;; eye-color-name: String Person -> String 
+;; consumes an eye-color and a person (tree) and produces the name of the (first) ;;person in the tree with the given eye-color 
+
+;; eye-color-name-list: String Person -> String 
+;; consumes an eye-color and a person (tree) and produces the name of the (first) ;;person in the tree with the given eye-color 
+
+;;Circle back to correct signature and purpose when done.
+
+;eye-color-name: String Person -> String or Boolean
+;consumes eye color and person and return true if some descendant has that eye color
+(define (eye-color-name color a-person) 
+     (if  (string=? color (person-eye a-person))
+          (person-name a-person)
+          (eye-color-name-list color (person-children a-person))))
+
+
+;eye-color-name-list: String LisOfPerson -> String or Boolean
+;consumes eye color and list of people; returns true if a descendant has eye color
+(define (eye-color-name-list color alop) 
+     (cond [(empty? alop) #false]
+           [(cons? alop)  (if (string? (eye-color-name color (first alop)))
+                              (eye-color-name color (first alop))
+                              (eye-color-name-list color (rest alop)))]))
+
+
+(check-expect (eye-color-name "blue" SUSANTREE) "Susan")
+(check-expect (eye-color-name "green" SUSANTREE) "Joe")
+(check-expect (eye-color-name "brown" SUSANTREE) "Sam")
+;(check-expect (eye-color-name "pink" SUSANTREE) #false)
+
+
+
+
+
+
+
+;;Circle back to correct signature and purpose when done.
+
+
+;;Version of what we did that returns Person rather than String:
+
+; ;; FIRST VERSION OF find-in-list (DOESN'T USE local)
+; 
+; 
+; ;; find-in-list:  String ListOfPerson -> Person OR false
+; ;; consumes a name and a list of persons, and produces the person with the given name
+; ;; or produces false if no such person
+; (define (find-in-list name alop)
+;   (cond [(empty? alop) false]
+;         [(cons? alop)    (if (person? (find-person name (first alop)))
+;                              (find-person name (first alop))           ;; what to do when you get back a person
+;                              (find-in-list name (rest alop)))]))       ;; what to do when you get back false
+; 
+
+  
+;; THIS VERSION OF find-in-list USES local
+
+;; find-in-list:  String ListOfPerson -> Person OR false
+;; consumes a name and a list of persons, and produces the person with the given name
+;; or produces false if no such person
+;(define (find-in-list name alop)
+;  (cond [(empty? alop) false]
+;        [(cons? alop)  (local [(define CHECK-PERSON (find-person name (first alop)))]
+;
+;                         (if (person? CHECK-PERSON)
+;                             CHECK-PERSON                              ;; what to do when you get back a person
+;                             (find-in-list name (rest alop))))]))      ;; what to do when you get back false
+;
+;                           
+;                             
+;(check-expect (find-person "Henry" SUSANTREE) false)
+;(check-expect (find-person "Helen" SUSANTREE)
+;              (make-person "Helen" 1940 "hazel"
+;                           (list (make-person "Beth" 1965 "green" empty)
+;                                 (make-person "Sam" 1969 "brown" empty))))
+;(check-expect (find-person "Beth" SUSANTREE)(make-person "Beth" 1965 "green" empty))
+
+
+
+

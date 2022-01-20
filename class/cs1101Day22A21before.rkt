@@ -1,0 +1,191 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname cs1101Day22A21before) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #t)))
+;#lang racket
+
+;Class 22 Objectives
+; 
+;At the end of today's class you should
+;KNOW: 
+;	•  What a state variable is 
+;	•  How to make Racket remember a result that changes over time 
+;	•  Why set! can't be used to change the value of a function argument 
+;	•  That begin can be used to run any number of Racket expressions, but only returns the result of the last expression 
+;	•  When to use begin 
+;	•  That it is OK to define a function which takes no inputs
+;
+;BE ABLE TO: 
+;	•  Use set! to redefine a named variable 
+;	•  Write programs that change the values of variables 
+;	•  Document variables 
+;	•  Document a function that changes the value of a variable 
+;
+;Sample Exam Question: 
+;Using the data definitions for Account and ListOfAccount and the variable Citibank that we defined in class, write a function remove-account that consumes an account number and removes the account with the given account number from Citibank. 
+;Hint: Use remove-account to call another function, remove-from-list. remove-from-list consumes an account number and a list of accounts and produces a list of accounts with the named account removed. 
+
+;;Mutable Variables
+
+(define VARIABLE 0);initialize variables
+;set it and don't forget it!
+;example of set! and bad set!
+
+(define-struct account (acct# balance))
+; a Account is a (make-account Natural Number)
+; INTERP: represents an acount where
+;         acc# represents the account number
+;         balance represents the balance of the account in US dollars
+
+;;a ListOfAccount is one of:
+;;
+;;  - empty
+;;  - (cons Account ListOfAccount)
+
+;;CITIBANG is a list of accounts
+;;remembers information about each customer's account
+(define CITIBANG (list (make-account 111 10)
+                       (make-account 222 20)
+                       (make-account 333 30)))
+
+;;add-account: Natural Number -> ListOfAccount
+;;takes a new acctnum and balance and extends list of accounts
+;;EFFECT: changes the number of accounts in CITIBANG  
+(check-expect (add-account 10 100) (list (make-account 111 10)
+                       (make-account 222 20)
+                       (make-account 333 30) (make-account 10 100))) 
+
+(define (add-account accnum accbal)
+  (begin (set! CITIBANG (append CITIBANG (list (make-account accnum accbal))))
+         CITIBANG))
+
+
+;(define (add-account num# bal$)
+;  (cons (make-account num# bal$) CITIBANG))
+
+;;Void
+
+;;side-effects
+
+;;Here's a bit on side effects for those who care:
+;;https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+;;(It's in Canvas as today's lagniappe.
+;;
+;;NOTE: When 'state' is discussed, it refers to the overall condition of
+;;the program being run, i.e. if a variable's value is changed, the program
+;;enters a new 'state'.
+
+
+;;add-account
+;;takes a new acctnum and balance and extends list of accounts
+;;EFFECT: changes the number of accounts in CITIBANG  
+;(define (add-account num# bal$)
+;  (set! CITIBANG (cons (make-account num# bal$) CITIBANG)))
+
+
+"show CITIBANG prior to adding account 123"
+;CITIBANG
+;(add-account 123 0.05)
+;"show CITIBANG after adding account 123 / insure no others changed"
+;CITIBANG
+
+;nuthin'
+
+;;Vinnie's Barbershop has five waiting stools.
+;;Vinnie's ticket machine dispenses numbers 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5 ....
+
+;ticketnum is a natural that keeps track of the next customer 
+(define ticketnum 0)
+
+;;get-ticket:  -> Natural
+;;return the next barbershop number (1 2 3 4 5 1)
+;; EFFECT: changes value of ticketnum
+
+;;Note that this is the first time we have defined a function without parameters (except, perhaps, (newline))
+
+;begin the begin
+(check-expect (get-ticket) 1)
+(check-expect (get-ticket) 2)
+(check-expect (get-ticket) 3)
+(check-expect (get-ticket) 4)
+(check-expect (get-ticket) 5)
+(check-expect (get-ticket) 1)
+(define (get-ticket)
+  (begin
+    (display "old:")
+    (display ticketnum)
+   (newline)
+  (if (= 5 ticketnum)
+       (set! ticketnum 1)
+        (set! ticketnum (add1 ticketnum)));)        
+    (display "new:")
+   ticketnum
+        ))
+
+;begin resembles a local somewhat
+;where local has as many definitions as we want and returns a final expression value,
+;begin has as many expressions (statements) as we want but returns only the value of the final expression
+
+;;And note the difference in color of the output
+
+;; Is void? a primitive?
+;;
+;;What is the difference between
+;;newline
+;;and
+;;(newline)
+;;?
+
+(define acct1 (make-account 1 111))
+(define acct2 (make-account 2 222))
+(define acct3 (make-account 3 333))
+
+;oops
+
+;;remove-from-list: ListOfAccount Natural -> ListOfAccounts
+;;remove given account from list
+(define (remove-from-list acc-list num#)
+  (cond [(empty? acc-list) (error "no such account")]
+        [(cons? acc-list)
+         (if (= num# (account-acct# (first acc-list)))
+            (rest acc-list) ;return rest of list (this drops acct -- Why?)
+            (cons (first acc-list) (remove-from-list (rest acc-list) num#)))]))
+
+
+
+;;remove-account: ListOfAccount Natural -> ListOfAccount
+;; consumes a list of accounts and an account number and removes that account number from the list
+;; EFFECT: changes the number of accounts in CITIBANG
+(define (remove-account acc-list num#)
+  (begin (set! CITIBANG (remove-from-list acc-list num#)) CITIBANG))
+
+
+;;We can even do micro-surgery on structs, changing individual field values
+;;with new field-specific BANGS:
+;(define myaccount (make-account 1729 1000000))
+
+;(set-account-balance! myaccount 2000000);mutator
+
+;Hardy?
+
+;make a list of accts and mutate one!
+
+;Recap:
+;
+;set!
+;void / (void)
+;error
+;side effects
+;begin
+;(no-args)
+;mutators!
+
+;(define account1 (make-account 1 1111))
+;(define account2 (make-account 2 2222))
+;(define account3 (make-account 3 3333))
+;(define TESTBANG (list account1 account2 account3))
+;(define TESTBANK (list (make-account 1 1111)
+;                       (make-account 2 2222)
+;                       (make-account 3 3333)))
+;
+;(equal? TESTBANG TESTBANK)
+;(eq? TESTBANG TESTBANK)

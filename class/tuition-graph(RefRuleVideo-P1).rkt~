@@ -1,0 +1,16 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname |tuition-graph ref rule |) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/image)
+;;Constants
+(define FONT-SIZE 24)
+(define FONT-COLOR "black")
+
+(define Y-SCALE 1/200)
+(define BAR-WIDTH 30)
+(define BAR-COLOR "lightblue")
+
+;; Data definitons
+(define-struct school (name tuition))
+;; a School is a (make-school String Natural)
+;; interp. where 
